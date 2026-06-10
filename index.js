@@ -22,6 +22,16 @@ try {
   entries = [];
 }
 
+// Migrate old entries that have no ID
+entries = entries.map(function(entry) {
+    if (!entry.id) {
+        entry.id = crypto.randomUUID();
+    }
+    return entry;
+});
+if (entries.length > 0) {
+    localStorage.setItem("entries", JSON.stringify(entries));
+}
 
 
 let totalIncome = 0;
@@ -145,11 +155,6 @@ function displayEntries() {
 
     deleteButton.addEventListener("click", function () {
       deleteEntry(capturedId) 
-
-      localStorage.setItem("entries", JSON.stringify(entries));
-
-      updateSummary();
-      displayEntries();
     });
 
     // Add everything to the list item
