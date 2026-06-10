@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Budget Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      body {
+        font-family: "Space Grotesk", sans-serif;
+      }
+
+      input[type="date"]::-webkit-calendar-picker-indicator {
+        filter: invert(1);
+      }
+
+      .entry-income {
+        border-left: 3px solid #22c55e;
+      }
+
+      .entry-expense {
+        border-left: 3px solid #ef4444;
+      }
+
+      .entry-date {
+        color: #888;
+        font-size: 0.8rem;
+      }
+
+      .entry-description {
+        font-weight: bold;
+        margin: 0 5px;
+      }
+
+      .income {
+        color: green;
+        font-weight: bold;
+      }
+
+      .expense {
+        color: red;
+        font-weight: bold;
+      }
+
+      .entry-type {
+        background: #eee;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        text-transform: capitalize;
+      }
+
+      button {
+        margin-left: 8px;
+      }
+    </style>
+  </head>
+
+  <body class="bg-zinc-950 text-white min-h-screen px-4 py-10">
+    <div class="max-w-xl mx-auto space-y-6">
+      <!-- Header -->
+      <div class="mb-8">
+        <p class="text-zinc-500 text-sm uppercase tracking-widest mb-1">
+          Personal Finance
+        </p>
+        <h1 class="text-4xl font-bold text-white">
+          Budget <span class="text-emerald-400">Tracker</span>
+        </h1>
+      </div>
+
+      <!-- Summary Cards -->
+      <div class="grid grid-cols-3 gap-3">
+        <div class="bg-zinc-900 rounded-2xl p-4 border border-zinc-800">
+          <p class="text-zinc-500 text-xs uppercase tracking-wider mb-1">
+            Income
+          </p>
+          <p id="incomeDisplay" class="text-emerald-400 font-bold text-lg">
+            ₦0
+          </p>
+        </div>
+
+        <div class="bg-zinc-900 rounded-2xl p-4 border border-zinc-800">
+          <p class="text-zinc-500 text-xs uppercase tracking-wider mb-1">
+            Expenses
+          </p>
+          <p id="expenseDisplay" class="text-red-400 font-bold text-lg">₦0</p>
+        </div>
+
+        <div class="bg-zinc-900 rounded-2xl p-4 border border-zinc-800">
+          <p class="text-zinc-500 text-xs uppercase tracking-wider mb-1">
+            Balance
+          </p>
+          <p id="balanceDisplay" class="text-white font-bold text-lg">₦0</p>
+        </div>
+      </div>
+
+      <!-- Input Form -->
+      <div class="bg-zinc-900 rounded-2xl p-5 border border-zinc-800 space-y-3">
+        <h2
+          class="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-4"
+        >
+          New Entry
+        </h2>
+
+        <input
+          type="text"
+          id="descriptionInput"
+          placeholder="Description e.g. Salary, Rent"
+          class="w-full bg-zinc-800 border border-zinc-700 text-white placeholder-zinc-500 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 transition"
+        />
+
+        <div class="grid grid-cols-2 gap-3">
+          <input
+            type="number"
+            id="amountInput"
+            placeholder="Amount (₦)"
+            class="w-full bg-zinc-800 border border-zinc-700 text-white placeholder-zinc-500 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 transition"
+          />
+
+          <input
+            type="date"
+            id="dateInput"
+            class="w-full bg-zinc-800 border border-zinc-700 text-zinc-400 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 transition"
+          />
+        </div>
+
+        <select
+          id="typeSelect"
+          class="w-full bg-zinc-800 border border-zinc-700 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 transition"
+        >
+          <option value="income">⬆ Income</option>
+          <option value="expense">⬇ Expense</option>
+        </select>
+
+        <div class="flex gap-3 pt-1">
+          <button
+            id="addButton"
+            class="flex-1 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold rounded-xl py-3 text-sm transition"
+          >
+            + Add Entry
+          </button>
+
+          <button
+            id="clearButton"
+            class="px-5 bg-zinc-800 hover:bg-red-500 hover:text-white text-zinc-400 font-semibold rounded-xl py-3 text-sm border border-zinc-700 transition"
+          >
+            Clear All
+          </button>
+        </div>
+      </div>
+
+      <!-- Entries List (FIXED SCROLL AREA) -->
+      <div class="bg-zinc-900 rounded-2xl p-5 border border-zinc-800">
+        <h2
+          class="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-4"
+        >
+          Entries
+        </h2>
+
+        <ul
+          id="entriesList"
+          class="space-y-2 h-72 overflow-y-auto pr-2 scroll-smooth"
+        >
+          <li class="text-zinc-600 text-sm text-center py-6">
+            No entries yet. Add one above.
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-sm font-semibold text-zinc-400 uppercase tracking-wider">
+        Entries
+      </h2>
+      <button
+        id="sortButton"
+        class="text-xs text-zinc-400 border border-zinc-700 rounded-lg px-3 py-1 hover:border-emerald-500 hover:text-emerald-400 transition"
+      >
+        Newest first
+      </button>
+    </div>
+
+    <div class="bg-zinc-900 rounded-2xl p-5 border border-zinc-800">
+      <h2
+        class="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-4"
+      >
+        Summary by Type
+      </h2>
+      <ul id="categoryList" class="space-y-2"></ul>
+    </div>
+
+    <script src="index.js"></script>
+  </body>
+</html>
