@@ -23,16 +23,19 @@ try {
 }
 
 // Migrate old entries that have no ID
-entries = entries.map(function(entry) {
-    if (!entry.id) {
-        entry.id = crypto.randomUUID();
-    }
-    return entry;
+entries = entries.map(function (entry) {
+  if (!entry.id) {
+    entry.id = crypto.randomUUID();
+  }
+  return entry;
 });
 if (entries.length > 0) {
-    localStorage.setItem("entries", JSON.stringify(entries));
+  localStorage.setItem("entries", JSON.stringify(entries));
 }
 
+function formatAmount(amount) {
+  return "₦" + amount.toLocaleString("en-NG");
+}
 
 let totalIncome = 0;
 let totalExpenses = 0;
@@ -95,9 +98,9 @@ function updateSummary() {
 
   let balance = totalIncome - totalExpenses;
 
-  incomeDisplay.innerText = `₦${totalIncome}`;
-  expenseDisplay.innerText = `₦${totalExpenses}`;
-  balanceDisplay.innerText = `₦${balance}`;
+  incomeDisplay.innerText = formatAmount(totalIncome);
+  expenseDisplay.innerText = formatAmount(totalExpenses);
+  balanceDisplay.innerText = formatAmount(balance);
 
   if (balance < 0) {
     balanceDisplay.style.color = "red";
@@ -117,7 +120,7 @@ function displayEntries() {
 
     // Date
     let dateSpan = document.createElement("span");
-    dateSpan.innerText = entry.date;
+    dateSpan.innerText = formatDate(entry.date);
     dateSpan.classList.add("entry-date");
 
     // Description
@@ -127,7 +130,7 @@ function displayEntries() {
 
     // Amount
     let amountSpan = document.createElement("span");
-    amountSpan.innerText = `₦${entry.amount}`;
+    amountSpan.innerText = formatAmount(entry.amount);
 
     if (entry.type === "income") {
       amountSpan.classList.add("income");
@@ -140,13 +143,13 @@ function displayEntries() {
     typeSpan.innerText = entry.type;
     typeSpan.classList.add("entry-type");
 
-    const capturedId = entry.id
+    const capturedId = entry.id;
     // Edit Button
     let editButton = document.createElement("button");
     editButton.innerText = "Edit";
 
     editButton.addEventListener("click", function () {
-      editEntry(capturedId)
+      editEntry(capturedId);
     });
 
     // Delete Button
@@ -154,7 +157,7 @@ function displayEntries() {
     deleteButton.innerText = "Delete";
 
     deleteButton.addEventListener("click", function () {
-      deleteEntry(capturedId) 
+      deleteEntry(capturedId);
     });
 
     // Add everything to the list item
@@ -241,23 +244,21 @@ function editEntry(id) {
   updateSummary();
 }
 
-function deleteEntry(id){
+function deleteEntry(id) {
   // find the real position in the original entries array
-    let index = entries.findIndex(function(entry){
-        return entry.id === id
-    })
+  let index = entries.findIndex(function (entry) {
+    return entry.id === id;
+  });
 
-    if (index === -1) {
-        return   // entry not found — do nothing
-    }
+  if (index === -1) {
+    return; // entry not found — do nothing
+  }
 
-    entries.splice(index, 1)
-    localStorage.setItem("entries", JSON.stringify(entries))
-    updateSummary()
-    displayEntries()
+  entries.splice(index, 1);
+  localStorage.setItem("entries", JSON.stringify(entries));
+  updateSummary();
+  displayEntries();
 }
-
-  
 
 function clearAll() {
   entries = [];
@@ -286,46 +287,49 @@ function getCategoryTotals() {
 //  between income and expenses visually.
 
 function displayCategoryTable() {
-  // 1. Get the final totals object we built with reduce()
-  let totals = getCategoryTotals(); // e.g., { income: 230000, expense: 62000 }
+  let totals = getCategoryTotals();
 
-  // 2. Grab the HTML element where the list should live, and clear it out
   let categoryList = document.getElementById("categoryList");
   categoryList.innerHTML = "";
 
-  // 3. Object.keys() gives us: ["income", "expense"]
-  // Object.keys() gives you an array of the keys: ["income", "expense"]
   let types = Object.keys(totals).sort(function (a, b) {
     return totals[b] - totals[a];
   });
 
-  // 4. Loop through each type using a standard JavaScript for...of loop
   for (let type of types) {
-    // Create the main row container (a list item)
     let row = document.createElement("li");
-    row.classList.add("category-row"); // optional: for CSS styling later
+    row.classList.add("category-row");
 
-    // Create the label span (e.g., "Income")
     let labelSpan = document.createElement("span");
-    // Capitalize the first letter, then add the rest of the word
+
     labelSpan.textContent = type.charAt(0).toUpperCase() + type.slice(1);
 
-    // Create the amount span (e.g., "₦230,000")
     let amountSpan = document.createElement("span");
-    amountSpan.textContent = "₦" + totals[type].toLocaleString(); // toLocaleString adds nice commas
+    amountSpan.textContent = formatAmount(totals[type]);
 
-    // Apply colors conditionally based on the type
+    amountSpan.classList.add("font-semibold", "text-sm");
     if (type === "income") {
-      amountSpan.style.color = "green";
-    } else if (type === "expense") {
-      amountSpan.style.color = "red";
+      amountSpan.classList.add("text-emerald-400");
+    } else {
+      amountSpan.classList.add("text-red-400");
     }
 
-    // 5. Append both spans to the row
+    // The row — flex layout, space between label and amount:
+    row.classList.add(
+      "flex",
+      "justify-between",
+      "items-center",
+      "py-2",
+      "border-b",
+      "border-zinc-800",
+    );
+
+    // The label span:
+    labelSpan.classList.add("text-zinc-300", "text-sm");
+
     row.appendChild(labelSpan);
     row.appendChild(amountSpan);
 
-    // 6. Append the finished row to the main list on your webpage
     categoryList.appendChild(row);
   }
 }
@@ -365,6 +369,19 @@ sortButton.addEventListener("click", function () {
   }
   displayEntries(); // re-render with new sort order
 });
+
+function formatDate(dateString) {
+  // dateString is "2025-06-01"
+  // We add T00:00:00 to avoid timezone shifting the date
+  let date = new Date(dateString + "T00:00:00");
+  return date.toLocaleDateString("en-NG", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
+
+formatDate("2025-06-01"); // → "1 Jun 2025"
 
 addButton.addEventListener("click", addEntry);
 clearButton.addEventListener("click", clearAll);
