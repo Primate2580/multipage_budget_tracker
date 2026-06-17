@@ -38,7 +38,8 @@ function formatAmount(amount) {
   return "₦" + amount.toLocaleString("en-NG");
 }
 
-let incomeExpenseChart = null;
+let barChart = null;
+let donutChart = null;
 // null means "no chart exists yet"
 // We track it so we can destroy and recreate it when data changes
 let totalIncome = 0;
@@ -112,7 +113,8 @@ function updateSummary() {
     balanceDisplay.style.color = "green";
   }
   displayCategoryTable();
-  renderChart()   
+  renderBarChart();
+  renderDonutChart();
 }
 
 function displayEntries() {
@@ -386,47 +388,33 @@ function formatDate(dateString) {
   });
 }
 
-function renderChart() {
-   if (entries.length === 0) {
-        if (incomeExpenseChart !== null) {
-            incomeExpenseChart.destroy()
-            incomeExpenseChart = null
-        }
-        return   // nothing to draw
+function renderBarChart() {
+  // Guard — nothing to draw
+  if (entries.length === 0) {
+    if (barChart !== null) {
+      barChart.destroy();
+      barChart = null;
     }
-  // Build data arrays from entries
-  let labels = entries.map(function (entry) {
-    return entry.description;
-  });
-
-  let amounts = entries.map(function (entry) {
-    return entry.amount;
-  });
-
-  let colours = entries.map(function (entry) {
-    return entry.type === "income" ? "#22c55e" : "#ef4444";
-  });
-
-  // Get the canvas element and context
-  let canvas = document.getElementById("incomeExpenseChart");
-  let ctx = canvas.getContext("2d");
-
-  // Destroy existing chart before creating a new one
-  if (incomeExpenseChart !== null) {
-    incomeExpenseChart.destroy();
+    return;
   }
 
-  // Create and save the new chart
-  incomeExpenseChart = new Chart(ctx, {
+  let canvas = document.getElementById("barChart");
+  let ctx = canvas.getContext("2d");
+
+  if (barChart !== null) {
+    barChart.destroy();
+  }
+
+  barChart = new Chart(ctx, {
     type: "bar",
     data: {
-      labels: labels,
+      labels: ["Income", "Expenses"],
       datasets: [
         {
           label: "Amount (₦)",
-          data: amounts,
-          backgroundColor: colours,
-          borderRadius: 6,
+          data: [totalIncome, totalExpenses],
+          backgroundColor: ["#22c55e", "#ef4444"],
+          borderRadius: 8,
           borderWidth: 0,
         },
       ],
@@ -437,6 +425,14 @@ function renderChart() {
         legend: {
           display: false,
         },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              let value = context.parsed.y; // Correct for Cartesian/bar charts
+              return " " + formatAmount(value);
+            }
+          }
+        }
       },
       scales: {
         y: {
@@ -461,7 +457,71 @@ function renderChart() {
   });
 }
 
+function renderDonutChart() {
+  // Guard — nothing to draw
+  if (entries.length === 0) {
+    if (donutChart !== null) {
+      donutChart.destroy();
+      donutChart = null;
+    }
+    return;
+  }
 
+  let canvas = document.getElementById("donutChart");
+  let ctx = canvas.getContext("2d");
+
+  if (donutChart !== null) {
+    donutChart.destroy();
+  }
+
+  donutChart = new Chart(ctx, {
+    type: "doughnut",
+    data: {
+      labels: ["Income", "Expenses"],
+      datasets: [
+        {
+          data: [totalIncome, totalExpenses],
+          backgroundColor: ["#22c55e", "#ef4444"],
+          borderWidth: 0,
+          hoverOffset: 8,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      cutout: "65%", // Maintained so it stays a donut chart instead of a pie chart
+      plugins: {
+        legend: {
+          display: false, // Turned off as requested
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              // Note: Donut/Doughnut charts use context.parsed directly, not context.parsed.y
+              let value = context.parsed; 
+              return " " + formatAmount(value);
+            }
+          }
+        }
+      },
+      // Note: Doughnut charts do not use X and Y grid scales. 
+      // If you ever switch this to a "bar" or "line" chart, uncomment the scales below:
+      /*
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { color: "#71717a" },
+          grid: { color: "#27272a" }
+        },
+        x: {
+          ticks: { color: "#71717a" },
+          grid: { display: false }
+        }
+      }
+      */
+    },
+  });
+}
 
 addButton.addEventListener("click", addEntry);
 clearButton.addEventListener("click", clearAll);

@@ -155,14 +155,26 @@
         </div>
       </div>
 
-    
+      <!-- chart canvas -->
+      <!-- Replace your existing chart card with this -->
       <div class="bg-zinc-900 rounded-2xl p-5 border border-zinc-800">
         <h2
           class="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-4"
         >
           Overview
         </h2>
-        <canvas id="incomeExpenseChart"></canvas>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <p class="text-xs text-zinc-500 mb-2 text-center">
+              Income vs Expenses
+            </p>
+            <canvas id="barChart"></canvas>
+          </div>
+          <div>
+            <p class="text-xs text-zinc-500 mb-2 text-center">Breakdown</p>
+            <canvas id="donutChart"></canvas>
+          </div>
+        </div>
       </div>
 
       <!-- Entries List (FIXED SCROLL AREA) -->
