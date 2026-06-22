@@ -80,8 +80,7 @@ function addEntry() {
   typeSelect.value = "income";
   dateInput.value = "";
 
-  updateSummary();
-  displayEntries();
+  refreshAll();
 }
 
 function updateSummary() {
@@ -100,7 +99,9 @@ function updateSummary() {
     .reduce(function (sum, entry) {
       return sum + entry.amount;
     }, 0);
+}
 
+function renderDashboard() {
   let balance = totalIncome - totalExpenses;
 
   incomeDisplay.innerText = formatAmount(totalIncome);
@@ -112,7 +113,7 @@ function updateSummary() {
   } else {
     balanceDisplay.style.color = "green";
   }
-  displayCategoryTable();
+
   renderBarChart();
   renderDonutChart();
 }
@@ -247,8 +248,7 @@ function editEntry(id) {
 
   // ── Save and re-render ──
   localStorage.setItem("entries", JSON.stringify(entries));
-  displayEntries();
-  updateSummary();
+  refreshAll();
 }
 
 function deleteEntry(id) {
@@ -263,16 +263,14 @@ function deleteEntry(id) {
 
   entries.splice(index, 1);
   localStorage.setItem("entries", JSON.stringify(entries));
-  updateSummary();
-  displayEntries();
+  refreshAll();
 }
 
 function clearAll() {
   entries = [];
   localStorage.removeItem("entries");
   entriesList.innerHTML = "";
-  updateSummary();
-  displayEntries();
+  refreshAll();
 }
 
 // for calculating category totals, we create a function getCategoryTotals() that uses the reduce() method
@@ -427,12 +425,12 @@ function renderBarChart() {
         },
         tooltip: {
           callbacks: {
-            label: function(context) {
+            label: function (context) {
               let value = context.parsed.y; // Correct for Cartesian/bar charts
               return " " + formatAmount(value);
-            }
-          }
-        }
+            },
+          },
+        },
       },
       scales: {
         y: {
@@ -496,15 +494,15 @@ function renderDonutChart() {
         },
         tooltip: {
           callbacks: {
-            label: function(context) {
+            label: function (context) {
               // Note: Donut/Doughnut charts use context.parsed directly, not context.parsed.y
-              let value = context.parsed; 
+              let value = context.parsed;
               return " " + formatAmount(value);
-            }
-          }
-        }
+            },
+          },
+        },
       },
-      // Note: Doughnut charts do not use X and Y grid scales. 
+      // Note: Doughnut charts do not use X and Y grid scales.
       // If you ever switch this to a "bar" or "line" chart, uncomment the scales below:
       /*
       scales: {
@@ -554,12 +552,17 @@ function updateActiveNavLink(hash) {
   });
 }
 
+function refreshAll() {
+  updateSummary();
+  renderDashboard();
+  displayCategoryTable();
+  displayEntries();
+}
 
 addButton.addEventListener("click", addEntry);
 clearButton.addEventListener("click", clearAll);
 
 // show saved data on page load
-updateSummary();
-displayEntries();
-window.addEventListener("hashchange", showPage)
-showPage()   
+refreshAll()
+window.addEventListener("hashchange", showPage);
+showPage();
