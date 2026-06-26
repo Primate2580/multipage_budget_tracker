@@ -539,7 +539,7 @@ function showPage() {
 }
 
 function updateActiveNavLink(hash) {
-  document.querySelectorAll(".nav-link").forEach((link) => {
+  document. querySelectorAll(".nav-link").forEach((link) => {
     link.classList.remove("text-white", "bg-zinc-800");
     link.classList.add("text-zinc-400");
 
