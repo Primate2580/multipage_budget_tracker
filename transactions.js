@@ -1,6 +1,7 @@
 import { state, formatAmount, formatDate } from "./data.js";
 
 let sortOrder = "newest";
+let searchKeyword = ""
 
 export function addEntry() {
   let description = document
@@ -31,12 +32,42 @@ export function addEntry() {
 }
 
 export function displayEntries() {
-  document.getElementById("entriesList").innerHTML = "";
+  let entriesList = document.getElementById("entriesList");
+  entriesList.innerHTML = "";
 
   let sorted = getSortedEntries();
 
-  for (let i = 0; i < sorted.length; i++) {
-    let entry = sorted[i];
+  // Filter by search keyword
+  let keyword = searchKeyword.toLowerCase().trim();
+
+  let visible = sorted.filter(function (entry) {
+    if (keyword === "") {
+      return true; // Show everything when search is empty
+    }
+
+    return (
+      entry.description.toLowerCase().includes(keyword) ||
+      entry.type.toLowerCase().includes(keyword)
+    );
+  });
+
+  // Handle no results
+  if (visible.length === 0) {
+    let emptyMessage = document.createElement("li");
+    emptyMessage.textContent = "No entries found";
+    emptyMessage.classList.add(
+      "text-zinc-500",
+      "text-center",
+      "py-4",
+      "text-sm"
+    );
+
+    entriesList.appendChild(emptyMessage);
+    return;
+  }
+
+  for (let i = 0; i < visible.length; i++) {
+    let entry = visible[i];
 
     let listItem = document.createElement("li");
 
@@ -94,10 +125,9 @@ export function displayEntries() {
     listItem.appendChild(editButton);
     listItem.appendChild(deleteButton);
 
-    document.getElementById("entriesList").appendChild(listItem);
+    entriesList.appendChild(listItem);
   }
 }
-
 export function editEntry(id) {
   let index = state.entries.findIndex(function (entry) {
     return entry.id === id;
@@ -194,7 +224,7 @@ export function getSortedEntries() {
   return sorted;
 }
 
-// Add to transactions.js:
+
 export function toggleSortOrder() {
     if (sortOrder === "newest") {
         sortOrder = "oldest"
@@ -204,4 +234,9 @@ export function toggleSortOrder() {
         document.getElementById("sortButton").innerText = "Newest first"
     }
     displayEntries()
+}
+
+//setter:
+export function setSearchKeyword(keyword) {
+    searchKeyword = keyword
 }
