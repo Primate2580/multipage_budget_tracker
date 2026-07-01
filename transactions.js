@@ -2,6 +2,22 @@ import { state, formatAmount, formatDate } from "./data.js";
 
 let sortOrder = "newest";
 let searchKeyword = ""
+let filterType = "all"
+
+// Near your other filter variables at the top:
+let fromDate = ""
+let toDate = ""
+
+// Exported setters:
+export function setFromDate(date) {
+    fromDate = date
+}
+
+export function setToDate(date) {
+    toDate = date
+}
+
+
 
 export function addEntry() {
   let description = document
@@ -37,18 +53,20 @@ export function displayEntries() {
 
   let sorted = getSortedEntries();
 
-  // Filter by search keyword
+  // Filter by search keyword and type
   let keyword = searchKeyword.toLowerCase().trim();
 
   let visible = sorted.filter(function (entry) {
-    if (keyword === "") {
-      return true; // Show everything when search is empty
-    }
-
-    return (
+    let keywordMatch =
+      keyword === "" ||
       entry.description.toLowerCase().includes(keyword) ||
-      entry.type.toLowerCase().includes(keyword)
-    );
+      entry.type.toLowerCase().includes(keyword);
+
+    let typeMatch =
+      filterType === "all" ||
+      entry.type === filterType;
+
+    return keywordMatch && typeMatch;
   });
 
   // Handle no results
@@ -127,6 +145,28 @@ export function displayEntries() {
 
     entriesList.appendChild(listItem);
   }
+
+
+let visiblity = sorted.filter(function(entry) {
+    let keywordMatch = keyword === ""
+        || entry.description.toLowerCase().includes(keyword)
+        || entry.type.toLowerCase().includes(keyword)
+
+    let typeMatch = filterType === "all"
+        || entry.type === filterType
+
+    // NEW — date range check
+    let dateMatch = true
+    if (fromDate !== "") {
+        dateMatch = dateMatch && entry.date >= fromDate
+    }
+    if (toDate !== "") {
+        dateMatch = dateMatch && entry.date <= toDate
+    }
+
+    return keywordMatch && typeMatch && dateMatch
+})
+
 }
 export function editEntry(id) {
   let index = state.entries.findIndex(function (entry) {
@@ -236,7 +276,12 @@ export function toggleSortOrder() {
     displayEntries()
 }
 
-//setter:
+//setter: for search
 export function setSearchKeyword(keyword) {
     searchKeyword = keyword
+}
+
+//  setter — filter dropdown
+export function setFilterType(type) {
+    filterType = type
 }

@@ -232,15 +232,48 @@
         </div>
 
 <!-- search by filter -->
-<div class="relative mt-2 mb-3">
+<div class="flex gap-3 mt-2 mb-3">
     <input
         type="text"
         id="searchInput"
         placeholder="Search entries..."
-        class="w-full bg-zinc-800 border border-zinc-700 text-white
+        class="flex-1 bg-zinc-800 border border-zinc-700 text-white
                placeholder-zinc-500 rounded-xl px-4 py-3 text-sm
                focus:outline-none focus:border-emerald-500 transition"
     />
+    <select
+        id="filterSelect"
+        class="bg-zinc-800 border border-zinc-700 text-white rounded-xl
+               px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 transition"
+    >
+        <option value="all">All</option>
+        <option value="income">Income</option>
+        <option value="expense">Expense</option>
+    </select>
+</div>
+
+<!-- Add below the search + filter row -->
+<div class="flex gap-3 mt-2 mb-3">
+    <div class="flex-1">
+        <label class="text-xs text-zinc-500 mb-1 block">From</label>
+        <input
+            type="date"
+            id="fromDateInput"
+            class="w-full bg-zinc-800 border border-zinc-700 text-zinc-400
+                   rounded-xl px-4 py-2 text-sm focus:outline-none
+                   focus:border-emerald-500 transition"
+        />
+    </div>
+    <div class="flex-1">
+        <label class="text-xs text-zinc-500 mb-1 block">To</label>
+        <input
+            type="date"
+            id="toDateInput"
+            class="w-full bg-zinc-800 border border-zinc-700 text-zinc-400
+                   rounded-xl px-4 py-2 text-sm focus:outline-none
+                   focus:border-emerald-500 transition"
+        />
+    </div>
 </div>
 
         <!-- Entries List -->
